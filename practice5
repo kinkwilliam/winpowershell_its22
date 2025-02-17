@@ -1,0 +1,28 @@
+# Define the directory path
+$folderPath = "C:\Temp\Test"
+
+# Create the directory if it doesn't exist
+if (-Not (Test-Path $folderPath)) {
+    New-Item -ItemType Directory -Path $folderPath
+}
+
+# Create two sample text files
+New-Item -ItemType File -Path "$folderPath\sample1.txt" -Force
+New-Item -ItemType File -Path "$folderPath\sample2.txt" -Force
+
+# Create a sample CSV file
+$csvFile = "$folderPath\SampleFile.csv"
+Set-Content -Path $csvFile -Value "Name, Age, City`nJohn, 30, New York`nJane, 25, Los Angeles"
+
+# Display all files in the directory
+Get-ChildItem -Path $folderPath | Format-Table Name, Length
+
+# Get the CSV file size in KB and MB
+$csvSize = (Get-Item $csvFile).Length
+$sizeKB = [math]::Round($csvSize / 1KB, 2)
+$sizeMB = [math]::Round($csvSize / 1MB, 5)
+
+# Display the CSV file size
+Write-Output "FileName : SampleFile.csv"
+Write-Output "Size in KB : $sizeKB"
+Write-Output "Size in MB : $sizeMB"
