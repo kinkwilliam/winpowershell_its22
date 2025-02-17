@@ -1,0 +1,19 @@
+# Avame 3 instantsi Notepad'ist
+Start-Process notepad
+Start-Process notepad
+Start-Process notepad
+
+# Tsükkel, mis kontrollib, kas Notepad on avatud
+do {
+    # Kontrollime, kas on vähemalt üks Notepad'i instants, mis on avatud
+    $notepadRunning = Get-Process notepad -ErrorAction SilentlyContinue
+
+    if ($notepadRunning) {
+        Write-Host "Notepad is running"
+    }
+
+    # Ootame 1 sekundi enne järgmist kontrolli
+    Start-Sleep -Seconds 1
+} while ($notepadRunning.Count -gt 0)  # Tsükkel jätkub seni, kuni kõik Notepad'i instantsid on suletud
+
+Write-Host "All Notepads are closed."
