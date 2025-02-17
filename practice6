@@ -1,0 +1,37 @@
+# 1. Loo CSV-fail
+$csvPath = "C:\Temp\students.csv"
+$students = @"
+Name,Age
+John,8
+Joe,12
+Mary,7
+Tom,15
+Lily,16
+Emily,9
+"@
+$students | Set-Content -Path $csvPath
+
+# 2. Impordi CSV
+$studentsData = Import-Csv -Path $csvPath
+
+# 3. Lisa kooli tüüp (Junior/Senior)
+$processedStudents = $studentsData | ForEach-Object {
+    $schoolType = if ($_.Age -ge 4 -and $_.Age -le 10) { "Junior" } else { "Senior" }
+    [PSCustomObject]@{
+        Name = $_.Name
+        School = $schoolType
+    }
+}
+
+# 4. Kuva tabel
+$processedStudents | Format-Table -AutoSize
+
+# 5. Ekspordi uus CSV
+$outputPath = "C:\Temp\processed_students.csv"
+$processedStudents | Export-Csv -Path $outputPath -NoTypeInformation
+Write-Host "Tulemused on salvestatud: $outputPath" -ForegroundColor Green
+
+# 6. For-tsükkel 1-10 printimiseks
+for ($i = 1; $i -le 10; $i++) {
+    Write-Host "Current value : $i" -ForegroundColor Green
+}
