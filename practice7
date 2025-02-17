@@ -1,0 +1,23 @@
+# Värvid, mille hulgast õpilastele juhuslikult määratakse
+$colors = @('Red', 'Green', 'Yellow', 'Blue')
+
+# Õpilaste arv
+$numStudents = 20
+
+# Tsükkel, et määrata igale õpilasele juhuslik grupp
+$rollNumber = 1
+$studentGroups = @{}
+
+while ($rollNumber -le $numStudents) {
+    # Määrame õpilasele juhusliku värvi
+    $group = Get-Random -InputObject $colors
+    # Lisame õpilase grupi sõnastikku
+    $studentGroups[$rollNumber] = $group
+    $rollNumber++
+}
+
+# Väljundi printimine
+Write-Host "RollNumber`tGroup"
+foreach ($roll in $studentGroups.Keys) {
+    Write-Host "$roll`t$($studentGroups[$roll])"
+}
