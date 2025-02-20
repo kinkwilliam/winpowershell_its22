@@ -1,0 +1,56 @@
+# Funktsioon liitmiseks
+function Add {
+    param ([double]$num1, [double]$num2)
+    return $num1 + $num2
+}
+
+# Funktsioon lahutamiseks
+function Subtract {
+    param ([double]$num1, [double]$num2)
+    return $num1 - $num2
+}
+
+# Funktsioon jagamiseks
+function Divide {
+    param ([double]$num1, [double]$num2)
+    if ($num2 -eq 0) {
+        Write-Host "Viga: Nulliga jagamine pole lubatud!" -ForegroundColor Red
+        return $null
+    }
+    return $num1 / $num2
+}
+
+# Funktsioon korrutamiseks
+function Multiply {
+    param ([double]$num1, [double]$num2)
+    return $num1 * $num2
+}
+
+# Kasutaja sisendi küsimine
+[double]$n1 = [double](Read-Host "Sisesta esimene number") 
+[double]$n2 = [double](Read-Host "Sisesta teine number") 
+
+do {
+    # Valiku kuvamine
+    Write-Host "`nKalkulaator" -ForegroundColor Green
+    Write-Host "1: Liitmine" -ForegroundColor Yellow
+    Write-Host "2: Lahutamine" -ForegroundColor Yellow
+    Write-Host "3: Jagamine" -ForegroundColor Yellow
+    Write-Host "4: Korrutamine" -ForegroundColor Yellow
+    Write-Host "5: Välju" -ForegroundColor Red
+
+    [int]$choice = [int](Read-Host "Sisesta oma valik")
+
+    switch ($choice) {
+        1 { Write-Host "Tulemus: $(Add -num1 $n1 -num2 $n2)" }
+        2 { Write-Host "Tulemus: $(Subtract -num1 $n1 -num2 $n2)" }
+        3 { Write-Host "Tulemus: $(Divide -num1 $n1 -num2 $n2)" }
+        4 { Write-Host "Tulemus: $(Multiply -num1 $n1 -num2 $n2)" }
+        5 { 
+            Write-Host "Väljumine..." -ForegroundColor Cyan
+            break
+        }
+        default { Write-Host "Vale valik! Palun proovi uuesti." -ForegroundColor Red }
+    }
+
+} while ($choice -ne 5) # Tsükkel töötab seni, kuni kasutaja valib väljumise
