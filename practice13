@@ -1,0 +1,105 @@
+function Peamenüü {
+    Write-Host "`t`t`tPindala Kalkulaator" -ForegroundColor Green
+    Write-Host "`n`t`t`tPeamenüü" -ForegroundColor Yellow
+    Write-Host "`nVali kujund, mille pindala arvutada:`n" -ForegroundColor Yellow
+    Write-Host "1: Ruudu pindala" -ForegroundColor Green
+    Write-Host "2: Ristküliku pindala" -ForegroundColor Green
+    Write-Host "3: Ringi pindala" -ForegroundColor Green
+    Write-Host "4: Kolmnurga pindala" -ForegroundColor Green
+    Write-Host "5: Rööpküliku pindala" -ForegroundColor Green
+    Write-Host "6: Trapetsi pindala" -ForegroundColor Green
+    Write-Host "7: Välju`n" -ForegroundColor Green
+    $valik = Read-Host "Sisesta oma valik"
+    return $valik
+}
+
+function Kontrollmenüü {
+    Write-Host "`n`nVali järgmine tegevus" -ForegroundColor Yellow
+    Write-Host "`n1: Naase peamenüüsse" -ForegroundColor Green
+    Write-Host "2: Välju`n" -ForegroundColor Green
+    $valik2 = Read-Host "Sisesta oma valik"
+    if ($valik2 -eq "1") {
+        return  # Tagasi peamenüüsse
+    } elseif ($valik2 -eq "2") {
+        break  # Lõpetab skripti, mitte PowerShelli akent
+    } else {
+        Write-Host "`nVale sisend, proovi uuesti" -ForegroundColor Red
+        Kontrollmenüü
+    }
+}
+
+function RuuduPindala {
+    cls
+    Write-Host "`t`t`tRuudu pindala`n" -ForegroundColor Green
+    [int]$külg = Read-Host "Sisesta ruudu külje pikkus"
+    $pindala = $külg * $külg
+    Write-Host "`nRuudu pindala: $pindala" -ForegroundColor Green
+    Kontrollmenüü
+}
+
+function RistkülikuPindala {
+    cls
+    Write-Host "`t`t`tRistküliku pindala`n" -ForegroundColor Green
+    [int]$pikkus = Read-Host "Sisesta ristküliku pikkus"
+    [int]$laius = Read-Host "Sisesta ristküliku laius"
+    $pindala = $pikkus * $laius
+    Write-Host "`nRistküliku pindala: $pindala" -ForegroundColor Green
+    Kontrollmenüü
+}
+
+function RingiPindala {
+    cls
+    Write-Host "`t`t`tRingi pindala`n" -ForegroundColor Green
+    [int]$raadius = Read-Host "Sisesta ringi raadius"
+    $pindala = [math]::PI * $raadius * $raadius
+    Write-Host "`nRingi pindala: $pindala" -ForegroundColor Green
+    Kontrollmenüü
+}
+
+function KolmnurgaPindala {
+    cls
+    Write-Host "`t`t`tKolmnurga pindala`n" -ForegroundColor Green
+    [int]$alus = Read-Host "Sisesta kolmnurga alus"
+    [int]$kõrgus = Read-Host "Sisesta kolmnurga kõrgus"
+    $pindala = 0.5 * $alus * $kõrgus
+    Write-Host "`nKolmnurga pindala: $pindala" -ForegroundColor Green
+    Kontrollmenüü
+}
+
+function RööpkülikuPindala {
+    cls
+    Write-Host "`t`t`tRööpküliku pindala`n" -ForegroundColor Green
+    [int]$alus = Read-Host "Sisesta rööpküliku alus"
+    [int]$kõrgus = Read-Host "Sisesta rööpküliku kõrgus"
+    $pindala = $alus * $kõrgus
+    Write-Host "`nRööpküliku pindala: $pindala" -ForegroundColor Green
+    Kontrollmenüü
+}
+
+function TrapetsiPindala {
+    cls
+    Write-Host "`t`t`tTrapetsi pindala`n" -ForegroundColor Green
+    [int]$alus1 = Read-Host "Sisesta trapetsi ülemine alus"
+    [int]$alus2 = Read-Host "Sisesta trapetsi alumine alus"
+    [int]$kõrgus = Read-Host "Sisesta trapetsi kõrgus"
+    $pindala = 0.5 * ($alus1 + $alus2) * $kõrgus
+    Write-Host "`nTrapetsi pindala: $pindala" -ForegroundColor Green
+    Kontrollmenüü
+}
+
+do {
+    cls
+    $valik = Peamenüü
+    switch ($valik) {
+        "1" { cls; RuuduPindala }
+        "2" { cls; RistkülikuPindala }
+        "3" { cls; RingiPindala }
+        "4" { cls; KolmnurgaPindala }
+        "5" { cls; RööpkülikuPindala }
+        "6" { cls; TrapetsiPindala }
+        "7" { break }  # Lõpetab skripti
+        default {
+            Write-Host "`nVale sisend, proovi uuesti." -ForegroundColor Red
+        }
+    }
+} while ($true)
