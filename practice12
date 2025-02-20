@@ -1,0 +1,35 @@
+function countstart {
+    $start = Get-Service | Where-Object { $_.Status -eq "Running" }
+    Write-Host "Total services in running state = $($start.Count)"
+}
+
+function countstop {
+    $stop = Get-Service | Where-Object { $_.Status -eq "Stopped" }
+    Write-Host "Total services in stopped state = $($stop.Count)"
+}
+
+countstart
+countstop
+
+# ------------
+
+function countservice {
+    param (
+        [string]$status
+    )
+
+    if ($status -eq "Running") {
+        $start = Get-Service | Where-Object { $_.Status -eq "Running" }
+        Write-Host "Total services in running state = $($start.Count)"
+    }
+    elseif ($status -eq "Stopped") {
+        $stop = Get-Service | Where-Object { $_.Status -eq "Stopped" }
+        Write-Host "Total services in stopped state = $($stop.Count)"
+    }
+    else {
+        Write-Host "Invalid status! Please enter 'Running' or 'Stopped'."
+    }
+}
+
+countservice -status Running
+countservice -status Stopped
