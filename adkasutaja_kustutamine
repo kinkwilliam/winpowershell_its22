@@ -1,0 +1,19 @@
+# Kasutaja ees- ja perenimi
+$eesnimi = Read-Host "Sisesta eesnimi"
+$perenimi = Read-Host "Sisesta perenimi"
+
+# Loome kasutajanime
+$username = "$($eesnimi.ToLower()).$($perenimi.ToLower())"
+
+# Kontrollime, kas kasutaja eksisteerib
+try {
+    # Kustutame kasutaja AD-st
+    Remove-ADUser -Identity $username -Confirm:$false -ErrorAction Stop
+
+    Write-Host "Kasutaja $username on edukalt kustutatud." -ForegroundColor Cyan
+} catch {
+    # Kui kustutamine ebaõnnestub, kuvatakse veateade
+    Write-Host "Kasutaja $username kustutamine ebaõnnestus: $_" -ForegroundColor Red
+}
+
+
