@@ -1,0 +1,22 @@
+# Kasutaja andmete küsimine
+$eesnimi = Read-Host "Sisesta kustutatava kasutaja eesnimi: "
+$perenimi = Read-Host "Sisesta kustutatava kasutaja perenimi: "
+
+# Kasutajanime loomine
+$kasutajanimi = "$eesnimi.$perenimi".ToLower()
+Write-Host "Kustutav kasutaja on: $kasutajanimi"
+
+# Kontroll kas kasutaja on olemas
+if (Get-LocalUser -Name $kasutajanimi -ErrorAction SilentlyContinue) {
+    try {
+        # Kustutamine
+        Remove-LocalUser -Name $kasutajanimi -ErrorAction Stop
+        Write-Host "Kasutaja $kasutajanimi on kustutatud" -ForegroundColor Magenta
+    } catch {
+        # Probleem kustutamisel
+        Write-Host "Tekkis probleem kustutamisega: $_" -ForegroundColor DarkRed
+    }
+} else {
+    Write-Host "Kasutaja nimega $kasutajanimi ei leitud!" -ForegroundColor Magenta
+}
+
