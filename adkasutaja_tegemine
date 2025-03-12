@@ -1,0 +1,35 @@
+# Kontrolli, kas Active Directory moodul on saadaval ja laadi see
+if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
+    Write-Host "Active Directory moodul ei ole paigaldatud või laaditud. Palun paigaldage RSAT ja laadige moodul." -ForegroundColor Red
+    exit
+} else {
+    Import-Module ActiveDirectory
+}
+
+# Kasutaja ees ja perenimi
+$eesnimi = Read-Host "Sisesta enda eesnimi: "
+$perenimi = Read-Host "Sisesta enda perenimi: "
+
+# eesnimi.perenimi
+$username = "$($eesnimi.ToLower()).$($perenimi.ToLower())"
+
+# Kontroll kas kasutaja juba on
+$olemasolevadkasutajad = Get-ADUser -Filter {SamAccountName -eq $username} -ErrorAction SilentlyContinue
+
+if ($olemasolevadkasutajad) {
+    Write-host "Kasutaja $username on juba olemas - Ei saa lisada uuesti" -ForegroundColor DarkBlue
+} else {
+    # Lisamine
+    try {
+        New-ADUser -SamAccountName $username -GivenName $eesnimi -Surname $perenimi -Name "$eesnimi $perenimi"
+
+        # Kontroll
+        if ($?) {
+            write-host "Uus kasutaja $username lisatud edukalt" -ForegroundColor Cyan
+        } else {
+            Write-Host "Kasutaja $username lisamine ebaõnnestus." -ForegroundColor DarkRed
+        }
+    } catch {
+        Write-Host "Viga kasutaja lisamisel: $_" -ForegroundColor Red
+    }
+}
