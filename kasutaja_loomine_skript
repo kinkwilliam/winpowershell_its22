@@ -1,0 +1,26 @@
+# Kasutaja andmete küsimine
+$eesnimi = Read-Host "Sisesta oma eesnimi: "
+$perenimi = Read-Host "Sisesta oma perenimi: "
+
+# Username loomine
+$kasutajanimi = "$eesnimi.$perenimi".ToLower()
+Write-Host "Sinu kasutaja nimi on: $kasutajanimi"
+
+# Kirjeldus
+$taisnimi = "$eesnimi $perenimi"
+$kirjeldus = "Lokaalne kasutaja loodud skriptiga :))"
+
+# Kontroll, kas kasutaja on olemas
+if (Get-LocalUser -Name $kasutajanimi -ErrorAction SilentlyContinue) {
+    Write-Host "Kasutaja nimega $kasutajanimi on juba olemas!" -ForegroundColor Yellow
+} else {
+    try {
+    # Loomine
+    New-LocalUser -Name $kasutajanimi -Password (ConvertTo-SecureString "Parool1!" -AsPlainText -Force) -FullName $taisnimi -Description $kirjeldus -ErrorAction Stop
+
+    Write-Host "Kasutaja $kasutajanimi on edukalt loodud!" -ForegroundColor Cyan
+    } catch {
+        # Kui tuleb viga
+        Write-Host "Tekkis probleem kasutaja loomisega: $_" -ForegroundColor DarkRed
+    }
+}
