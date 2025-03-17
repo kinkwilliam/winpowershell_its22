@@ -1,0 +1,32 @@
+# Define the backup destination
+$backupFolder = "C:\Backup"
+
+# Create the backup folder if it doesn't exist
+if (-not (Test-Path $backupFolder)) {
+    New-Item -ItemType Directory -Force -Path $backupFolder
+}
+
+# Get a list of all users (filtering out system accounts)
+$users = Get-LocalUser | Where-Object { $_.Enabled -eq $true }
+
+# Loop through each user
+foreach ($user in $users) {
+    # Get the user's home directory
+    $homeDir = [System.IO.Path]::Combine("C:\Users", $user.Name)
+
+    # Check if the home directory exists
+    if (Test-Path $homeDir) {
+        # Create a backup filename with the format username-PP.MM.YYYY.zip
+        $date = Get-Date -Format "dd.MM.yyyy"
+        $backupFile = [System.IO.Path]::Combine($backupFolder, "$($user.Name)-$date.zip")
+
+        # Create a zip archive of the user's home directory
+        Write-Host "Backing up $homeDir to $backupFile"
+        Compress-Archive -Path $homeDir -DestinationPath $backupFile
+    } else {
+        Write-Host "Home directory for user $($user.Name) does not exist."
+    }
+}
+
+Write-Host "Backup process completed."
+
