@@ -1,0 +1,49 @@
+# Kontrolli, kas Active Directory moodul on saadaval ja laadi see
+if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
+    Write-Host "Active Directory moodul ei ole paigaldatud või laaditud. Palun paigaldage RSAT ja laadige moodul." -ForegroundColor Red
+    exit
+} else {
+    Import-Module ActiveDirectory
+}
+
+# Kasutaja ees ja perenimi
+$eesnimi = Read-Host "Sisesta enda eesnimi: "
+$perenimi = Read-Host "Sisesta enda perenimi: "
+
+# Genereeri kasutajanimi (eesnimi.perenimi)
+$username = "$($eesnimi.ToLower()).$($perenimi.ToLower())"
+
+# Kontrolli, kas kasutaja juba eksisteerib
+$olemasolevadkasutajad = Get-ADUser -Filter {SamAccountName -eq $username} -ErrorAction SilentlyContinue
+
+if ($olemasolevadkasutajad) {
+    Write-Host "Kasutaja $username on juba olemas - Ei saa lisada uuesti" -ForegroundColor DarkBlue
+} else {
+    # Funktsioon juhusliku parooli genereerimiseks
+    function Genereeri-Parool {
+        $parooliPikkus = 12
+        $parool = -join ((48..57) + (65..90) + (97..122) + (33,35,36,37,38,42,64) | Get-Random -Count $parooliPikkus | ForEach-Object {[char]$_})
+        return $parool
+    }
+    
+    # Loo uus parool
+    $parool = Genereeri-Parool
+    $secureParool = ConvertTo-SecureString $parool -AsPlainText -Force
+    
+    # Lisa kasutaja Active Directorysse
+    try {
+        New-ADUser -SamAccountName $username -GivenName $eesnimi -Surname $perenimi -Name "$eesnimi $perenimi" -UserPrincipalName "$username@domain.local" -Path "OU=Kasutajad,DC=domain,DC=local" -AccountPassword $secureParool -Enabled $true
+        
+        # Kontroll, kas lisamine õnnestus
+        if ($?) {
+            Write-Host "Uus kasutaja $username lisatud edukalt" -ForegroundColor Cyan
+            
+            # Salvesta kasutajaandmed CSV faili
+            "$username,$parool" | Out-File -Append -Encoding UTF8 kasutajad.csv
+        } else {
+            Write-Host "Kasutaja $username lisamine ebaõnnestus." -ForegroundColor DarkRed
+        }
+    } catch {
+        Write-Host "Viga kasutaja lisamisel: $_" -ForegroundColor Red
+    }
+}
