@@ -1,0 +1,50 @@
+# 1. AD Domeenikontrolleri paigaldamine
+Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+
+# Uue metsa (forest) loomine
+Install-ADDSForest -DomainName "sv-kool.local" -InstallDNS -CreateDnsDelegation:$false -DatabasePath "C:\Windows\NTDS" -LogPath "C:\Windows\NTDS" -SysvolPath "C:\Windows\SYSVOL" -Force
+
+# 2. Kontrollime AD mooduli olemasolu
+Get-Module -ListAvailable ActiveDirectory
+
+# Kui AD moodul puudub, impordime selle
+Import-Module ActiveDirectory
+
+# 3. Kuvame kõik AD kasutajahalduskäsud
+Get-Command -Module ActiveDirectory | Where-Object { $_.Name -like "*-ADUser" }
+
+# 4. Kasutaja loomine
+New-ADUser -Name "adkasutaja1"
+Enable-ADAccount -Identity "adkasutaja1"
+Set-ADAccountPassword -Identity "adkasutaja1" -Reset -NewPassword (ConvertTo-SecureString "P@ssw0rd" -AsPlainText -Force)
+
+# 5. Kasutaja loomine koos parameetritega
+New-ADUser -Name "adkasutaja2" -GivenName "AD" -Surname "Kasutaja 2" -SamAccountName "adkasutaja2" -UserPrincipalName "adkasutaja2@sv-kool.local" -AccountPassword (ConvertTo-SecureString "P@ssw0rd" -AsPlainText -Force) -Enabled $true
+
+# 6. Funktsioon mittestandaarsete tähtede asendamiseks
+function Transliterate-Letters {
+    param ([string]$text)
+    $translitMap = @{'õ'='o'; 'ä'='a'; 'ö'='o'; 'ü'='u'; 'š'='s'; 'ž'='z'}
+    $outputString = ""
+    foreach ($char in $text.ToCharArray()) {
+        $outputString += if ($translitMap[$char]) { $translitMap[$char] } else { $char }
+    }
+    return $outputString
+}
+
+# 7. Kasutajate loomine CSV-failist
+$users = Import-Csv -Path "C:\Users\Administrator\adkasutajad.csv"
+foreach ($user in $users) {
+    $firstName = Transliterate-Letters $user.FirstName
+    $lastName = Transliterate-Letters $user.LastName
+    $samAccountName = Transliterate-Letters $user.SamAccountName
+    $UPN = "$samAccountName@sv-kool.local"
+    
+    New-ADUser -GivenName $firstName -Surname $lastName -SamAccountName $samAccountName `
+        -UserPrincipalName $UPN -Department $user.Department -Title $user.Role `
+        -AccountPassword (ConvertTo-SecureString $user.Password -AsPlainText -Force) -Enabled $true
+}
+
+# 8. Loodud kasutajate kontrollimine
+$hour_ago = (Get-Date).AddHours(-1)
+Get-ADUser -Filter {(whenCreated -ge $hour_ago)} -Properties whenCreated | Select-Object Name, UserPrincipalName, SamAccountName, whenCreated
