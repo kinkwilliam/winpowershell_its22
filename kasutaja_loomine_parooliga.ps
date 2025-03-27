@@ -1,4 +1,3 @@
- 
 # Kontrolli, kas Active Directory moodul on saadaval ja laadi see
 if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
     Write-Host "Active Directory moodul ei ole paigaldatud või laaditud. Palun paigaldage RSAT ja laadige moodul." -ForegroundColor Red
