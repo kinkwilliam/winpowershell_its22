@@ -1,0 +1,12 @@
+
+#!/bin/bash
+
+LOGFILE="$HOME/system_health.log"
+DATE=$(date "+%Y-%m-%d %H:%M:%S")
+
+CPU_LOAD=$(uptime | awk -F'load average:' '{ print $2 }')
+DISK_USAGE=$(df -h / | awk 'NR==2 {print $5}')
+MEM_USAGE=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
+
+echo "[$DATE] CPU koormus: $CPU_LOAD, Kettakasutus: $DISK_USAGE, Mälukasutus: $MEM_USAGE" >> "$LOGFILE"
+
