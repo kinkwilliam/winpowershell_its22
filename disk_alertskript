@@ -1,0 +1,23 @@
+  GNU nano 7.2                                       disk_alertskript
+#!/bin/bash
+
+# Seaded
+LOG="/tmp/disk_alert.log"
+LIMIT=70
+
+# Kontroll
+USAGE=$(df / | grep / | awk '{print $5}' | sed 's/%//')
+
+DATE=$(date '+%Y-%m-%d %H:%M:%S')
+
+if [ "$USAGE" -gt "$LIMIT" ]; then
+    MESSAGE="HOIATUS: $(hostname) ketas on $USAGE% täis ($DATE)"
+    echo "$MESSAGE" | tee -a $LOG
+    # Kuvab ka ekraanile teavituse (kui GUI on olemas)
+    if command -v notify-send &> /dev/null; then
+        notify-send "Ketta täitumise hoiatus" "$MESSAGE"
+    fi
+else
+    echo "$DATE - Kõik korras: $USAGE%" >> $LOG
+fi
+
