@@ -1,0 +1,29 @@
+
+#!/bin/bash
+
+LOG="testjuhtumid.log"
+echo "Testi tulemused $(date)" > "$LOG"
+
+# 1. Kontrolli faili olemasolu
+if [ -f /var/www/html/index.html ]; then
+    echo "index.html on olemas" >> "$LOG"
+else
+    echo "index.html puudub" >> "$LOG"
+fi
+
+# 2. Kontrolli apache2 teenuse olekut
+if systemctl is-active --quiet apache2; then
+    echo "apache2 töötab" >> "$LOG"
+else
+    echo "apache2 EI tööta" >> "$LOG"
+fi
+
+# 3. Kontrolli omanikke
+if [ $(stat -c %U /var/www/html/) == "root" ] || [ $(stat -c %U /var/www/html/) == "www-data" ]; then
+    echo "/var/www/html/ omanik on sobilik (root või www-data)" >> "$LOG"
+else
+    echo "/var/www/html/ omanik EI ole sobilik" >> "$LOG"
+fi
+
+cat "$LOG"
+
