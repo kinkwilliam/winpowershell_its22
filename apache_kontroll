@@ -1,0 +1,16 @@
+
+#!/bin/bash
+
+SERVICE="apache2"
+
+if systemctl list-units --type=service | grep -q "$SERVICE"; then
+    echo "$SERVICE teenus on olemas."
+    if systemctl is-active --quiet "$SERVICE"; then
+        echo "$SERVICE töötab."
+    else
+        echo "$SERVICE ei tööta."
+    fi
+else
+    echo "$SERVICE teenust ei leitud."
+fi
+
