@@ -1,0 +1,26 @@
+#!/bin/bash
+
+TO_EMAIL="william.kink@voco.ee"
+LIMIT=70
+HOSTNAME=$(hostname)
+DATE=$(date '+%Y-%m-%d %H:%M:%S')
+USAGE=$(df / | grep / | awk '{print $5}' | sed 's/%//')
+
+if [ "$USAGE" -gt "$LIMIT" ]; then
+    SUBJECT="Ketta hoiatus - $HOSTNAME"
+    BODY="HOIATUS: $HOSTNAME ketas on $USAGE% täis ($DATE)"
+    echo -e "Subject: $SUBJECT\n\n$BODY" | msmtp $TO_EMAIL
+    echo "$BODY" >> /tmp/disk_alert.log
+else
+    echo "$DATE - Kõik korras: $USAGE%" >> /tmp/disk_alert.log
+fi
+
+
+
+
+
+
+
+
+
+
