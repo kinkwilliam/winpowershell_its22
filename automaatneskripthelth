@@ -8,12 +8,12 @@
 $logFile = "C:\scripts\reports\SystemHealthLog.csv"
 
 # E-post ja SMTP info
-$emailFrom = "william.kink@voco.ee"
-$emailTo = "william.kink@voco.ee"
+$emailFrom = "nimi@domeen"
+$emailTo = "nimi@domeen"
 $smtpServer = "smtp.gmail.com"
 $smtpPort = 587
-$smtpUser = "william.kink@voco.ee"
-$smtpPass = "ebysbqtrhbmmqlug"         # Gmaili rakenduse parool
+$smtpUser = "nimi@domeen"
+$smtpPass = "password"         # Gmaili rakenduse parool
 
 # Kontrollitavad teenused
 $servicesToCheck = @("wuauserv", "WinDefend", "Dnscache")  # Windows Update, Defender, DNS
