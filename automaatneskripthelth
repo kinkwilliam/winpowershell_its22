@@ -1,0 +1,65 @@
+# ---------------------------------------------
+# Autor: Sten Karis
+# Fail: SystemHealthMonitor.ps1
+# Kirjeldus: Automaatne süsteemi kontroll, logimine ja teavitamine
+# ---------------------------------------------
+
+# ---- CONFIG ----
+$logFile = "C:\scripts\reports\SystemHealthLog.csv"
+
+# E-post ja SMTP info
+$emailFrom = "william.kink@voco.ee"
+$emailTo = "william.kink@voco.ee"
+$smtpServer = "smtp.gmail.com"
+$smtpPort = 587
+$smtpUser = "william.kink@voco.ee"
+$smtpPass = "ebysbqtrhbmmqlug"         # Gmaili rakenduse parool
+
+# Kontrollitavad teenused
+$servicesToCheck = @("wuauserv", "WinDefend", "Dnscache")  # Windows Update, Defender, DNS
+
+# Probleemide kogum
+$problems = @()
+
+# Aeg
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+# ---- TEENUSTE KONTROLL ----
+foreach ($service in $servicesToCheck) {
+    $svc = Get-Service -Name $service -ErrorAction SilentlyContinue
+    if ($svc.Status -ne "Running") {
+        $problems += "Teenusega '$service' on probleem: staatus = $($svc.Status)"
+    }
+}
+
+# ---- SÜSTEEMI RESSURSSIDE KOGUMINE ----
+$cpuLoad = (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average
+$ram = Get-CimInstance -ClassName Win32_OperatingSystem
+$ramFree = [math]::Round($ram.FreePhysicalMemory / 1MB, 2)
+$ramTotal = [math]::Round($ram.TotalVisibleMemorySize / 1MB, 2)
+$ramUsage = [math]::Round((($ramTotal - $ramFree) / $ramTotal) * 100, 2)
+
+$drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -gt 0 }
+foreach ($drive in $drives) {
+    $freePercent = [math]::Round(($drive.Free / ($drive.Used + $drive.Free)) * 100, 2)
+    if ($freePercent -lt 10) {
+        $problems += "Kettal '$($drive.Name)' on vähem kui 10% vaba ruumi ($freePercent%)"
+    }
+}
+
+# ---- LOGIFAILI KIRJUTAMINE ----
+$logEntry = "$timestamp,$cpuLoad%,$ramUsage% RAM"
+foreach ($drive in $drives) {
+    $logEntry += ",$($drive.Name):$([math]::Round(($drive.Free / 1GB), 2))GB"
+}
+Add-Content -Path $logFile -Value $logEntry
+
+# ---- TEAVITUSE SAATMINE ----
+if ($problems.Count -gt 0) {
+    $subject = "Süsteemiteavitus: Probleemid tuvastatud - $timestamp"
+    $body = "Tuvastatud probleemid:`n" + ($problems -join "`n") + "`n`nKontrolli logi: $logFile"
+
+    Send-MailMessage -From $emailFrom -To $emailTo -Subject $subject `
+        -Body $body -SmtpServer $smtpServer -Port $smtpPort `
+        -UseSsl -Credential (New-Object PSCredential($smtpUser, (ConvertTo-SecureString $smtpPass -AsPlainText -Force)))
+}
